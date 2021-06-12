@@ -1,5 +1,7 @@
+
 import { useHistory } from "react-router"
 import { useOverlay } from "../../components/Overlay/hooks"
+import { LoadingClouds } from "../../scenes/Clouds"
 
 const options = [
     { 
@@ -24,7 +26,7 @@ const Home = () => {
 
     useOverlay({ actions: options, onAction: handleSelect })
 
-    return <></>
+    return <LoadingClouds />
 }
 
 export default Home

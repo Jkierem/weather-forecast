@@ -40,7 +40,18 @@ export type Min = number
 export type Max = number
 export type Bounds = [Min,Max]
 
-
 export const getLimits = (data: number[]): Bounds => {
     return data.reduce(([min,max],n) => [min > n ? n : min, max < n ? n : max],[Infinity,-Infinity])
 }
+
+export const isEmpty = <T>(a: T[]) => a.length === 0
+
+export const zip = <T,U>(as: T[], bs: U[]): [T,U][] => {
+    if( isEmpty(as) || isEmpty(bs) ){
+        return []
+    } else {
+        const [aHead,...aTail] = as
+        const [bHead,...bTail] = bs
+        return [[aHead,bHead],...zip(aTail,bTail)]
+    }
+} 
