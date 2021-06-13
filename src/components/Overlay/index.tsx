@@ -1,4 +1,5 @@
 import getClassName from "getclassname"
+import React from "react"
 import "./style.css"
 
 type Styling = {
@@ -54,7 +55,7 @@ const Overlay: React.FC<OverlayProps> = ({
     const actionItemCl = actionsCl.extend("&__item");
     const sideCl = rootCl.extend("&__sidebar")
 
-    const handleAction = (action: OverlayAction) => () => {
+    const handleAction = (action: OverlayAction) => (e: React.MouseEvent) => {
         onAction?.(action.action,action)
     }
 

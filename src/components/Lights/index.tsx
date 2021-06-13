@@ -1,6 +1,6 @@
-import { useSpring } from "@react-spring/three"
+import React from "react"
 import { Sky } from "@react-three/drei"
-import React, { useContext, useState } from "react"
+import { usePathSelector } from "redux-utility"
 import useLinear from "../../hooks/useLinear"
 
 export enum SkyTime {
@@ -9,51 +9,18 @@ export enum SkyTime {
     Storm=0,
 }
 
-
-export type LightContextData = {
-    skyTime: SkyTime,
-    ambientIntensity: number,
-    sunIntensity: number,
-}
-
-export type LightContextType =  LightContextData & {
-    setLight: (data: Partial<LightContextData>) => void
-}
-
-const defaultLight = {
-    skyTime: SkyTime.Storm,
-    ambientIntensity: 0.2,
-    sunIntensity: 0.8,
-}
-
-export const LightContext = React.createContext<LightContextType>({
-    ...defaultLight,
-    setLight: () => {}
-})
-
-export const useLight = () => useContext(LightContext)
-
 const Light: React.FC<{}> = ({ children }) => {
-    const [value, setValue] = useState(defaultLight)
-    const setLight = (data: Partial<LightContextData>) => {
-        setValue(prev => ({ ...prev, ...data }))
-    }
-
-    const rayleigh = useLinear(value.skyTime,value.skyTime,{
+    const skyConfig = usePathSelector("weather.sky",SkyTime.Calm);
+    const rayleigh = useLinear(skyConfig,skyConfig,{
         precision: 4
     })
-    
-    const {
-        ambientIntensity: ai, 
-        sunIntensity: si
-    } = value
 
-    return <LightContext.Provider value={{ ...value, setLight }}>
+    return <>
         <Sky azimuth={-3} inclination={0.7} distance={1000} rayleigh={rayleigh}/>
-        <ambientLight intensity={ai} />
-        <directionalLight color="white" position={[1, 5, 1]} intensity={si} />
+        <ambientLight intensity={0.2} />
+        <directionalLight color="white" position={[1, 5, 1]} intensity={0.8} />
         {children}
-    </LightContext.Provider>
+    </>
 }
 
 export default Light

@@ -8,6 +8,9 @@ import Rain, { RainConfig } from './Rain'
 import { EnumType } from 'jazzi'
 import { fromBounds, fromGeometry, lower } from '../core/BoundingBox'
 import { MeshProps } from '@react-three/fiber'
+import { useState } from 'react'
+import { useEffect } from 'react'
+import { usePathSelector } from 'redux-utility'
 
 const jitter = (geo: BufferGeometry) => {
     return iterateVerts(geo, (v) => (v.map(x => getRandom(0,0.2) + x) as [number,number,number]))
@@ -53,13 +56,13 @@ const Cloud = ({
         realBounding.x,
         [-10, cloudFloor],
         realBounding.z
-    ),[realBounding]);
+    ),[realBounding, cloudFloor]);
 
     const generationBounds = useMemo(() => fromBounds(
         realBounding.x,
         [cloudFloor, cloudFloor+10],
         realBounding.z
-    ),[realBounding])
+    ),[realBounding, cloudFloor])
 
     return <animated.mesh geometry={geo}  material={mat} {...rest}>
         <Rain
@@ -104,20 +107,15 @@ const MovingCloud: React.FC<MovingCloudProps> = ({ y , duration, direction, z, d
             duration 
         }
     })
-    return <RandomCloud position-x={x} position-y={y} position-z={z}/>
+    const rainSeverity = usePathSelector("weather.rain",RainConfig.Light)
+    return <RandomCloud position-x={x} position-y={y} position-z={z} rainSeverity={rainSeverity}/>
 }
 
 export const CloudConfig = EnumType("CloudConfig",["Light","Medium","Heavy"])
 
-export const LoadingClouds = ({ config=CloudConfig.Heavy }) => {
-    const amnt = config.match({
-        Light: 15,
-        Medium: 20,
-        Heavy: 30
-    })
-
+export const LoadingClouds = () => {
     return <>
-        {range(0,amnt).map((y) => {
+        {range(0,30).map((y) => {
             const duration = getRandomInt(8000,23000);
             const direction = getRandomInt(0,2) % 2 ? 1 : -1
             const height = getRandom(-15,8)
@@ -145,41 +143,35 @@ export type PoppingCloudProps = {
      * The real rain delay passed to the rain component is popDelay + rainDelay
      */
     rainDelay?: number;
-    /**
-     * Rain config
-     */
-    rainSeverity?: RainConfig;
+    visible?: boolean;
+    initialPosition: [number,number,number];
 } & MeshProps
 
 export const PoppingCloud: React.FC<PoppingCloudProps> = ({
     popDelay=0,
     rainDelay:rawRainDelay=0,
-    rainSeverity=RainConfig.Light,
-    ...rest
+    visible=false,
+    initialPosition: pos,
 }) => {
-    // Pop!
+    const [visibility, setVisibility] = useState(!visible)
+    const rainSeverity = usePathSelector("weather.rain",RainConfig.Light)
+
+    useEffect(() => {
+        setVisibility(visible)
+    },[visible])
+
     const { scale } = useSpring({ 
-        scale: 1,
-        from: { scale: 0 },
+        scale: visibility ? 1 : 0,
         delay: popDelay,
         config: config.gentle
     })
-    // Sway
-    const { xyz } = useSpring({
-        xyz: [0,0,0],
-        from: {
-            xyz: [2,1,3]
-        },
-        config: config.slow,
-        loop: true,
-        reverse: true
-    })
     const rainDelay = popDelay + rawRainDelay;
     return <Cloud 
+        size={5}
         rainDelay={rainDelay}
         rainSeverity={rainSeverity}
         scale={scale}
-        position={xyz}
-        {...rest}
+        onClick={() => setVisibility(false)}
+        position={pos}
     />
 }

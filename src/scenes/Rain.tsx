@@ -1,3 +1,4 @@
+import { useSpring, animated } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { useState } from 'react'
@@ -71,9 +72,9 @@ const Rain: React.FC<RainProps> = ({
         const visible = drops.filter((point) => vis.isTupleInside(point))
         geo.setAttribute('position', new Float32BufferAttribute(visible.flat(),3))
     })
-
+    const { color } = useSpring({ color: config === RainConfig.Heavy ? 0x59dcff : 0x10637a })
     return <points geometry={geo}>
-        <pointsMaterial color={0x59dcff} size={0.07} transparent={true}/>
+        <animated.pointsMaterial color={color} size={0.07} transparent={true}/>
     </points>
 }
 

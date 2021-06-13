@@ -52,7 +52,7 @@ const boxes = [
 
 const slabConfig = (ref: SpringRef) => ({ h: 1, from: { h: 0 }, ref, config: config.wobbly })
 
-const Terrain = () => {
+const Island = () => {
     const slab1Ref = useSpringRef()
     const { h: h1 } = useSpring(slabConfig(slab1Ref))
     const slab2Ref = useSpringRef()
@@ -92,18 +92,19 @@ const Terrain = () => {
             size={[15,6,15]}
             position-y={h3.to([0,1],[-15.5,-4.5])}
         />
-        {boxes.map((box) => {
+        {boxes.map((box,key) => {
             return <Trees
+                key={key}
                 boundary={box}
                 delay={1500}
                 scaleSpring={scaleSpring}
             />
         })}
-        <mesh position={[0,10,0]}>
-            <PoppingCloud 
-            />
-        </mesh>
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[0,10,0]}
+        />
     </animated.mesh>
 }
 
-export default Terrain;
+export default Island;

@@ -1,9 +1,10 @@
 import { useHistory } from "react-router"
-import { SkyTime, useLight } from "../../components/Lights"
 import { useOverlay } from "../../components/Overlay/hooks"
-import Terrain from "../../scenes/Terrain"
+import useWeather from "../../hooks/useWeather"
+import Island from "../../scenes/Island"
 
 const options = [
+    { action: "None", label: "None"    , hover: { fill: "darkred"}},
     { action: "Low" , label: "Low"     , hover: { fill: "darkred"}},
     { action: "Med" , label: "Med"     , hover: { fill: "darkred"}},
     { action: "High", label: "High"    , hover: { fill: "darkred"}},
@@ -12,7 +13,7 @@ const options = [
 
 const Demo = () => {
     const history = useHistory()
-    const light = useLight()
+    const weather = useWeather()
 
     const handleAction = (action: string) => {
         switch(action){
@@ -20,13 +21,13 @@ const Demo = () => {
                 history.goBack()
                 break;
             case "Low":
-                light.setLight({ skyTime: SkyTime.Calm })
+                weather.setLight()
                 break;
             case "Med":
-                light.setLight({ skyTime: SkyTime.Rain })
+                weather.setMedium()
                 break;
             case "High":
-                light.setLight({ skyTime: SkyTime.Storm })
+                weather.setHeavy()
                 break;
         }
     }
@@ -37,7 +38,7 @@ const Demo = () => {
     })
     
     return <>
-        <Terrain />
+        <Island />
     </>
 }
 
