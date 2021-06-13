@@ -36,22 +36,18 @@ export const range = ( start: number, end: number, step=1 ) => {
     return data
 }
 
-export type Min = number
-export type Max = number
-export type Bounds = [Min,Max]
-
-export const getLimits = (data: number[]): Bounds => {
-    return data.reduce(([min,max],n) => [min > n ? n : min, max < n ? n : max],[Infinity,-Infinity])
-}
-
 export const isEmpty = <T>(a: T[]) => a.length === 0
+export const head = <T>([head]: T[]) => head;
+export const tail = <T>([,...tail]: T[]) => tail;
 
-export const zip = <T,U>(as: T[], bs: U[]): [T,U][] => {
-    if( isEmpty(as) || isEmpty(bs) ){
+export const zip = <T>(...arrs: T[][]): T[][] => {
+    if( arrs.some(x => isEmpty(x)) ){
         return []
     } else {
-        const [aHead,...aTail] = as
-        const [bHead,...bTail] = bs
-        return [[aHead,bHead],...zip(aTail,bTail)]
+        return [arrs.map(xs => head(xs)), ...zip(...arrs.map(xs => tail(xs)))]
     }
-} 
+}
+
+export const isBetween = (min:number,max:number,val:number) => {
+    return val >= min && val <= max
+}

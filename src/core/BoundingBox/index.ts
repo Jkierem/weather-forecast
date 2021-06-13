@@ -1,6 +1,11 @@
-import { getRandom, zip } from "../utils";
+import { BufferGeometry } from "three";
+import { getRandom, isBetween, zip } from "../utils";
 
-export type Bound = [number,number]
+export type Min = number
+export type Max = number
+export type Bound = [Min,Max]
+export const lower = (x: Bound) => x[0]
+export const upper = (x: Bound) => x[1]
 
 export type BoundingBox = {
     readonly x: Bound,
@@ -8,6 +13,8 @@ export type BoundingBox = {
     readonly z: Bound,
     getBound: (idx: number) => Bound,
     generateRandomPoint: () => number[];
+    isInside: (...values: number[]) => boolean;
+    isTupleInside: (tup: number[]) => boolean;
 }
 
 const mkBoundingBox = (min: number[],max: number[]): BoundingBox => {
@@ -20,8 +27,29 @@ const mkBoundingBox = (min: number[],max: number[]): BoundingBox => {
         },
         generateRandomPoint(){
             return zip(min,max).map(([low,high]) => getRandom(low,high))
-        }
+        },
+        isInside(...values: number[]){
+            return zip(min,max,values).every(([low,high,val]) => isBetween(low,high,val))
+        },
+        isTupleInside(values: number[]){
+            return zip(min,max,values).every(([low,high,val]) => isBetween(low,high,val))
+        },
     }
 }
 
-export default mkBoundingBox;
+export const fromBounds = (...bs: Bound[]) => {
+    const [min,max] = bs.reduce((lims,bound) => {
+        lims[0].push(bound[0])
+        lims[1].push(bound[1])
+        return lims
+    },[[] as number[],[] as number[]])
+    return mkBoundingBox(min,max);
+}
+
+export const fromGeometry = (geo: BufferGeometry) => {
+    geo.computeBoundingBox()
+    const { min, max } = geo.boundingBox!;
+    return mkBoundingBox(min.toArray(), max.toArray())
+}
+
+export const fromLimitArrays = mkBoundingBox

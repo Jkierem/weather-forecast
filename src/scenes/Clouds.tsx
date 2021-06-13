@@ -1,11 +1,13 @@
-import { BufferGeometry, SphereGeometry, Vector3, MeshPhongMaterial, Box3 } from 'three'
+import { BufferGeometry, SphereGeometry, Vector3, MeshPhongMaterial } from 'three'
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 import React, { useMemo, useRef } from "react"
-import { getRandom, getRandomInt, iterateVerts, mapVerts, range, Bounds } from '../core/utils'
-import { animated, useSpring } from '@react-spring/three'
-import Rain from './Rain'
+import { getRandom, getRandomInt, iterateVerts, mapVerts, range} from '../core/utils'
+import { animated, config, useSpring } from '@react-spring/three'
+import Rain, { RainConfig } from './Rain'
 import { EnumType } from 'jazzi'
+import { fromBounds, fromGeometry, lower } from '../core/BoundingBox'
+import { MeshProps } from '@react-three/fiber'
 
 const jitter = (geo: BufferGeometry) => {
     return iterateVerts(geo, (v) => (v.map(x => getRandom(0,0.2) + x) as [number,number,number]))
@@ -15,18 +17,14 @@ const chop = (geo: BufferGeometry, limitY: number) => {
     return iterateVerts(geo, ([x,y,z]) => [x,Math.max(y,limitY),z])
 }
 
-const getBounds = (geo: BufferGeometry): { x: Bounds, y: Bounds, z: Bounds } => {
-    geo.computeBoundingBox();
-    const { min, max } = geo.boundingBox as Box3;
-    return {
-        x: [min.x, max.x],
-        y: [min.y, max.y],
-        z: [min.z, max.z],
-    }
-}
-
 const defaultDelta = () => 1
-const Cloud = ({ size=3, delta=defaultDelta,...rest }) => {
+const Cloud = ({ 
+    size=3, 
+    delta=defaultDelta, 
+    rainDelay=0,
+    rainSeverity=RainConfig.Light,
+    ...rest 
+}) => {
     const geo = useMemo(() => {
         const geos = []
         let prev = 1.5
@@ -49,13 +47,26 @@ const Cloud = ({ size=3, delta=defaultDelta,...rest }) => {
 
     const mat = useMemo(() => new MeshPhongMaterial({ color: 'white', flatShading: true }),[])
 
-    const bounds = getBounds(geo);
+    const realBounding = useMemo(() => fromGeometry(geo),[geo]);
+    const cloudFloor = lower(realBounding.y);
+    const visibilityBounds = useMemo(() => fromBounds(
+        realBounding.x,
+        [-10, cloudFloor],
+        realBounding.z
+    ),[realBounding]);
+
+    const generationBounds = useMemo(() => fromBounds(
+        realBounding.x,
+        [cloudFloor, cloudFloor+10],
+        realBounding.z
+    ),[realBounding])
 
     return <animated.mesh geometry={geo}  material={mat} {...rest}>
         <Rain
-            xLimits={bounds.x}
-            yLimits={[-10,bounds.y[0]]}
-            zLimits={bounds.z}
+            delay={rainDelay}
+            visibilityBounds={visibilityBounds}
+            generationBounds={generationBounds}
+            config={rainSeverity}
         />
     </animated.mesh>
 }
@@ -77,14 +88,14 @@ const RandomCloud = (props: any) => {
     }
 } 
 
-type AnimatedCloudProps = { 
+type MovingCloudProps = { 
     y: number,
     z: number, 
     duration: number, 
     direction: number,
     displace: number
 }
-const AnimatedCloud: React.FC<AnimatedCloudProps> = ({ y , duration, direction, z, displace }) => {
+const MovingCloud: React.FC<MovingCloudProps> = ({ y , duration, direction, z, displace }) => {
     const { x } = useSpring({
         from: { x: -30*direction - (displace*direction) }, 
         to: { x: 30*direction + (displace*direction) },
@@ -112,7 +123,7 @@ export const LoadingClouds = ({ config=CloudConfig.Heavy }) => {
             const height = getRandom(-15,8)
             const depth = getRandomInt(-20,-5)
             const displace = getRandomInt(15,40);
-            return <AnimatedCloud 
+            return <MovingCloud 
                 key={y} 
                 y={height} 
                 z={depth} 
@@ -122,4 +133,53 @@ export const LoadingClouds = ({ config=CloudConfig.Heavy }) => {
             />
         })}
     </>
+}
+
+export type PoppingCloudProps = {
+    /**
+     * Delay of the popping animation
+     */
+    popDelay?: number;
+    /**
+     * Delay between popping and rain starting to fall
+     * The real rain delay passed to the rain component is popDelay + rainDelay
+     */
+    rainDelay?: number;
+    /**
+     * Rain config
+     */
+    rainSeverity?: RainConfig;
+} & MeshProps
+
+export const PoppingCloud: React.FC<PoppingCloudProps> = ({
+    popDelay=0,
+    rainDelay:rawRainDelay=0,
+    rainSeverity=RainConfig.Light,
+    ...rest
+}) => {
+    // Pop!
+    const { scale } = useSpring({ 
+        scale: 1,
+        from: { scale: 0 },
+        delay: popDelay,
+        config: config.gentle
+    })
+    // Sway
+    const { xyz } = useSpring({
+        xyz: [0,0,0],
+        from: {
+            xyz: [2,1,3]
+        },
+        config: config.slow,
+        loop: true,
+        reverse: true
+    })
+    const rainDelay = popDelay + rawRainDelay;
+    return <Cloud 
+        rainDelay={rainDelay}
+        rainSeverity={rainSeverity}
+        scale={scale}
+        position={xyz}
+        {...rest}
+    />
 }
