@@ -2,15 +2,17 @@ import { useSpring, animated } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { useState } from 'react'
+import { useRef } from 'react'
 import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { BoundingBox } from '../core/BoundingBox'
-import { getRandom } from '../core/utils'
+import { BoundingBox, upper } from '../core/BoundingBox'
+import { getRandom, isBetween } from '../core/utils'
+import { Tuple3 } from '../core/utils/types'
 
 export enum RainConfig {
-    Light,
-    Medium,
-    Heavy
+    Light=0,
+    Medium=1,
+    Heavy=2
 }
 
 const getConfig = (config: RainConfig) => {
@@ -24,13 +26,31 @@ const getConfig = (config: RainConfig) => {
     }
 }
 
-const generateDrops = (count: number, gen: BoundingBox): [number,number,number][] => {
-    const drops: [number,number,number][] = [];
+type RainDrop = {
+    mark: RainConfig | "death",
+    pos: Tuple3<number>;
+}
+
+const getMark = (idx: number) => {
+    if( idx < 50 ){
+        return RainConfig.Light
+    } else if(isBetween(50,300,idx)) {
+        return RainConfig.Medium
+    } else {
+        return RainConfig.Heavy
+    }
+}
+
+const generateDrops = (count: number, gen: BoundingBox): RainDrop[] => {
+    const drops: RainDrop[] = [];
     for ( let i = 0; i < count; i ++ ) {
         const x = getRandom(...gen.x);
         const y = getRandom(...gen.y);
         const z = getRandom(...gen.z);
-        drops.push([ x, y, z ]);
+        drops.push({
+            mark: 0,
+            pos: [ x, y, z ]
+        });
     }
     return drops;
 }
@@ -39,21 +59,23 @@ type RainProps = {
     config?: RainConfig,
     generationBounds: BoundingBox,
     visibilityBounds: BoundingBox,
-    delay?: number
+    delay?: number,
+    visibility: boolean 
 }
 
 const Rain: React.FC<RainProps> = ({ 
     generationBounds: gen,
     visibilityBounds: vis,
+    visibility,
     config=RainConfig.Light,
     delay=0
 }) => {
     const [waiting, setWaiting] = useState(delay ? true : false)
     const { count, speed } = getConfig(config)
-    let drops = useMemo(() => generateDrops(count,gen),[count,gen]);
-    const geo = new BufferGeometry()
-    geo.setAttribute("position", new Float32BufferAttribute(drops.flat(),3))
-
+    // let drops = useMemo(() => generateDrops(count,gen),[count,gen]);
+    // geo.setAttribute("position", new Float32BufferAttribute(drops.flat(),3))
+    
+    const geo = useMemo(() => new BufferGeometry(),[])
     useEffect(() => {
         let id: number;
         if( waiting ){
@@ -61,18 +83,47 @@ const Rain: React.FC<RainProps> = ({
         }
         return () => { id ?? clearTimeout(id) }
     },[delay, waiting, setWaiting])
-
+    let dropsRef: React.MutableRefObject<RainDrop[]> = useRef([])
     useFrame(() => {
-        if( !waiting ){
-            drops = drops.map(([x,y,z]) => {
-                const newY = y - speed < vis.y[0] ? vis.y[1] :  y - speed
-                return [x,newY,z]
-            });
+        let { current: drops } = dropsRef;
+        if( visibility ){
+            let state: "static" | "inc" | "dec" = "static";
+            if( drops.length !== count ){
+                state = drops.length < count ? "inc" : "dec"
+            }
+            if( state === "inc" ){
+                drops = drops.concat(generateDrops(count - drops.length,gen)).map((x,idx) => {
+                    return {
+                        mark: getMark(idx),
+                        pos: x.pos
+                    }
+                })
+            }
+            if( !waiting ){
+                const highestMark = getMark(drops.length - 1);
+                dropsRef.current = drops.map((rainDrop) => {
+                    const { pos, mark } = rainDrop
+                    const [x,y,z] = pos;
+                    if( y - speed < vis.y[0] ){
+                        if( state === "dec" && mark === highestMark ){
+                            return { mark: "death" as "death", pos };
+                        } else {
+                            return {
+                                mark,
+                                pos: [x,upper(vis.y),z] as Tuple3<number>
+                            };
+                        }
+                    }
+                    return { mark, pos: [x,y-speed,z] as Tuple3<number> };
+                }).filter(drop => drop.mark !== "death");
+            }
+        } else {
+            dropsRef.current = []
         }
-        const visible = drops.filter((point) => vis.isTupleInside(point))
+        const visible = drops.map(drop => drop.pos).filter((point) => visibility && vis.isTupleInside(point))
         geo.setAttribute('position', new Float32BufferAttribute(visible.flat(),3))
     })
-    const { color } = useSpring({ color: config === RainConfig.Heavy ? 0x59dcff : 0x10637a })
+    const { color } = useSpring({ color: config === RainConfig.Heavy ? 0x59dcff : 0x0000ff })
     return <points geometry={geo}>
         <animated.pointsMaterial color={color} size={0.07} transparent={true}/>
     </points>

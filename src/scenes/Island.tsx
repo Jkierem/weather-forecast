@@ -6,6 +6,8 @@ import { mapVerts } from "../core/utils";
 import Trees from "./Trees";
 import { fromLimitArrays } from "../core/BoundingBox";
 import { PoppingCloud } from "./Clouds";
+import { usePathSelector } from "redux-utility";
+import { RainConfig } from "./Rain";
 
 type SlabProps = {
     color: number
@@ -53,6 +55,7 @@ const boxes = [
 const slabConfig = (ref: SpringRef) => ({ h: 1, from: { h: 0 }, ref, config: config.wobbly })
 
 const Island = () => {
+    const rain: RainConfig = usePathSelector("weather.rain",RainConfig.Light as RainConfig);
     const slab1Ref = useSpringRef()
     const { h: h1 } = useSpring(slabConfig(slab1Ref))
     const slab2Ref = useSpringRef()
@@ -102,7 +105,45 @@ const Island = () => {
         })}
         <PoppingCloud 
             visible={true}
-            initialPosition={[0,10,0]}
+            initialPosition={[5,10,5]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[-5,10,-5]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[-3,10,5]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[5,10,-3]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[-3,10,0]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={rain === RainConfig.Heavy}
+            initialPosition={[0,10,-3]}
+            popDelay={3000}
+            rainDelay={1000}
+        />
+        <PoppingCloud 
+            visible={rain === RainConfig.Heavy}
+            initialPosition={[3,10,3]}
+            popDelay={3000}
+            rainDelay={1000}
         />
     </animated.mesh>
 }

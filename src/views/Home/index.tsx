@@ -1,6 +1,7 @@
 
 import { useHistory } from "react-router"
 import { useOverlay } from "../../components/Overlay/hooks"
+import { useSetWeather } from "../../hooks/useWeather"
 import { LoadingClouds } from "../../scenes/Clouds"
 
 const options = [
@@ -23,7 +24,7 @@ const Home = () => {
     const handleSelect = (action: string) => {
         history.push(action)
     }
-
+    useSetWeather("Medium")
     useOverlay({ actions: options, onAction: handleSelect })
 
     return <LoadingClouds />

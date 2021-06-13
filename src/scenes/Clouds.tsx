@@ -26,6 +26,7 @@ const Cloud = ({
     delta=defaultDelta, 
     rainDelay=0,
     rainSeverity=RainConfig.Light,
+    visibility=true,
     ...rest 
 }) => {
     const geo = useMemo(() => {
@@ -70,6 +71,7 @@ const Cloud = ({
             visibilityBounds={visibilityBounds}
             generationBounds={generationBounds}
             config={rainSeverity}
+            visibility={visibility}
         />
     </animated.mesh>
 }
@@ -153,7 +155,7 @@ export const PoppingCloud: React.FC<PoppingCloudProps> = ({
     visible=false,
     initialPosition: pos,
 }) => {
-    const [visibility, setVisibility] = useState(!visible)
+    const [visibility, setVisibility] = useState(false)
     const rainSeverity = usePathSelector("weather.rain",RainConfig.Light)
 
     useEffect(() => {
@@ -171,7 +173,7 @@ export const PoppingCloud: React.FC<PoppingCloudProps> = ({
         rainDelay={rainDelay}
         rainSeverity={rainSeverity}
         scale={scale}
-        onClick={() => setVisibility(false)}
+        visibility={visibility}
         position={pos}
     />
 }
