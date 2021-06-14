@@ -1,13 +1,11 @@
+import { useMemo, useState, useRef } from 'react'
 import { useSpring, animated } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
-import { useMemo } from 'react'
-import { useState } from 'react'
-import { useRef } from 'react'
-import { useEffect } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { BoundingBox, upper } from '../core/BoundingBox'
 import { getRandom, isBetween } from '../core/utils'
 import { Tuple3 } from '../core/utils/types'
+import useTimeout from '../hooks/useTimeout'
 
 export enum RainConfig {
     Light=0,
@@ -72,32 +70,45 @@ const Rain: React.FC<RainProps> = ({
 }) => {
     const [waiting, setWaiting] = useState(delay ? true : false)
     const { count, speed } = getConfig(config)
-    // let drops = useMemo(() => generateDrops(count,gen),[count,gen]);
-    // geo.setAttribute("position", new Float32BufferAttribute(drops.flat(),3))
     
     const geo = useMemo(() => new BufferGeometry(),[])
-    useEffect(() => {
-        let id: number;
-        if( waiting ){
-            id = window.setTimeout(() => setWaiting(false), delay)
-        }
-        return () => { id ?? clearTimeout(id) }
-    },[delay, waiting, setWaiting])
+    
+    useTimeout({
+        action: () => setWaiting(false),
+        duration: delay,
+        condition: waiting,
+        deps: [delay, waiting, setWaiting]
+    })
     let dropsRef: React.MutableRefObject<RainDrop[]> = useRef([])
+    const visibleRef: React.MutableRefObject<boolean> = useRef(visibility);
+
+    useTimeout({
+        action: () => { visibleRef.current = true },
+        duration: 3000,
+        condition: visibility,
+        deps: [visibility],
+        onFalse: () => {
+            dropsRef.current = []
+            visibleRef.current = false
+        }
+    })
+
     useFrame(() => {
-        let { current: drops } = dropsRef;
-        if( visibility ){
+        let drops;
+        if( visibleRef.current ){
+            drops = dropsRef.current;
             let state: "static" | "inc" | "dec" = "static";
             if( drops.length !== count ){
                 state = drops.length < count ? "inc" : "dec"
             }
             if( state === "inc" ){
-                drops = drops.concat(generateDrops(count - drops.length,gen)).map((x,idx) => {
-                    return {
-                        mark: getMark(idx),
-                        pos: x.pos
-                    }
-                })
+                drops = drops.concat(generateDrops(count - drops.length,gen))
+                    .map((x,idx) => {
+                        return {
+                            mark: getMark(idx),
+                            pos: x.pos
+                        }
+                    })
             }
             if( !waiting ){
                 const highestMark = getMark(drops.length - 1);
@@ -119,9 +130,12 @@ const Rain: React.FC<RainProps> = ({
             }
         } else {
             dropsRef.current = []
+            drops = dropsRef.current
         }
-        const visible = drops.map(drop => drop.pos).filter((point) => visibility && vis.isTupleInside(point))
-        geo.setAttribute('position', new Float32BufferAttribute(visible.flat(),3))
+        const visibleDrops = drops.map(drop => drop.pos).filter((point) => { 
+            return visibility && vis.isTupleInside(point)
+        })
+        geo.setAttribute('position', new Float32BufferAttribute(visibleDrops.flat(),3))
     })
     const { color } = useSpring({ color: config === RainConfig.Heavy ? 0x59dcff : 0x0000ff })
     return <points geometry={geo}>

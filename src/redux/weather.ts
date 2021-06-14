@@ -1,6 +1,6 @@
 import { createReducer, nullaryActionCreator } from "redux-utility";
 import { SkyTime } from "../components/Lights";
-import Rain, { RainConfig } from "../scenes/Rain";
+import { RainConfig } from "../scenes/Rain";
 
 export const LIGHT = "LIGHT"
 export const MEDIUM = "MEDIUM"

@@ -24,7 +24,7 @@ const Home = () => {
     const handleSelect = (action: string) => {
         history.push(action)
     }
-    useSetWeather("Medium")
+    useSetWeather("Light")
     useOverlay({ actions: options, onAction: handleSelect })
 
     return <LoadingClouds />

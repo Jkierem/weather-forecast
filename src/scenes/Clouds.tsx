@@ -150,8 +150,8 @@ export type PoppingCloudProps = {
 } & MeshProps
 
 export const PoppingCloud: React.FC<PoppingCloudProps> = ({
-    popDelay=0,
-    rainDelay:rawRainDelay=0,
+    popDelay=2000,
+    rainDelay:rawRainDelay=1000,
     visible=false,
     initialPosition: pos,
 }) => {

@@ -1,13 +1,15 @@
+import React, { useMemo, useState } from "react";
 import { animated, SpringRef, useChain, useSpring, useSpringRef, config } from "@react-spring/three";
 import { MeshProps } from "@react-three/fiber";
 import { BoxGeometry, Color, Float32BufferAttribute, MathUtils as m, MeshPhongMaterial } from 'three'
-import React, { useMemo } from "react";
+import { usePathSelector } from "redux-utility";
 import { mapVerts } from "../core/utils";
-import Trees from "./Trees";
 import { fromLimitArrays } from "../core/BoundingBox";
 import { PoppingCloud } from "./Clouds";
-import { usePathSelector } from "redux-utility";
 import { RainConfig } from "./Rain";
+import Trees from "./Trees";
+import Meeple from "./Meeple"
+import useTimeout from "../hooks/useTimeout";
 
 type SlabProps = {
     color: number
@@ -73,10 +75,22 @@ const Island = () => {
         scaleRef
     ],[0,0.2,0.4,1]);
 
+    const [popDelay, setPopDelay] = useState(2000)
+    useTimeout({
+        action: () => setPopDelay(0),
+        duration: 2000
+    })
+
     return <animated.mesh 
         position={[0,-6,0]}
         rotation={[0,m.degToRad(45),0]}
     >
+        <Meeple 
+            delay={4000}
+            position={[-8,3,8]}
+            rotation={[0,-m.degToRad(45),0]}
+            showUmbrella={rain === RainConfig.Medium}
+        />
         <GradientSlab
             topColor={Green} 
             bottomColor={Green} 
@@ -95,6 +109,41 @@ const Island = () => {
             size={[15,6,15]}
             position-y={h3.to([0,1],[-15.5,-4.5])}
         />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[5,10,5]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[-5,10,-5]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={true}
+            initialPosition={[-5,10,4]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={rain >= RainConfig.Medium}
+            initialPosition={[5,10,-3]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={rain >= RainConfig.Medium}
+            initialPosition={[-5,10,0]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={rain === RainConfig.Heavy}
+            initialPosition={[0,10,-3]}
+            popDelay={popDelay}
+        />
+        <PoppingCloud 
+            visible={rain === RainConfig.Heavy}
+            initialPosition={[3,10,3]}
+            popDelay={popDelay}
+        />
         {boxes.map((box,key) => {
             return <Trees
                 key={key}
@@ -103,48 +152,7 @@ const Island = () => {
                 scaleSpring={scaleSpring}
             />
         })}
-        <PoppingCloud 
-            visible={true}
-            initialPosition={[5,10,5]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={true}
-            initialPosition={[-5,10,-5]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={true}
-            initialPosition={[-3,10,5]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={true}
-            initialPosition={[5,10,-3]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={true}
-            initialPosition={[-3,10,0]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={rain === RainConfig.Heavy}
-            initialPosition={[0,10,-3]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
-        <PoppingCloud 
-            visible={rain === RainConfig.Heavy}
-            initialPosition={[3,10,3]}
-            popDelay={3000}
-            rainDelay={1000}
-        />
+        
     </animated.mesh>
 }
 

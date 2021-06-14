@@ -16,7 +16,7 @@ export const useSetWeather = (weather: "Light" | "Medium" | "Heavy") => {
     useEffect(() => {
         // @ts-ignore
         weatherCtrl[`set${weather}`]();
-    },[weather])
+    },[weather, weatherCtrl])
 }
 
 export default useWeather;
