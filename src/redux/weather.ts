@@ -1,5 +1,5 @@
 import { createReducer, nullaryActionCreator } from "redux-utility";
-import { SkyTime } from "../components/Lights";
+import { SkyTime } from "../controls/Lights";
 import { RainConfig } from "../scenes/Rain";
 
 export const LOADING = "Loading"

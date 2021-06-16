@@ -1,6 +1,6 @@
 import { applyMiddleware, createStore } from "redux"
 import { getDevtoolsCompose } from "redux-utility"
-import { SkyTime } from "./components/Lights"
+import { SkyTime } from "./controls/Lights"
 import { rootReducer } from "./reducer"
 import { RainConfig } from "./scenes/Rain"
 

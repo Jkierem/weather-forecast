@@ -8,9 +8,9 @@ import {
   Route,
   RouteProps,
 } from 'react-router-dom'
-import Light from './components/Lights';
-import Overlay from './components/Overlay';
-import { OverlayContext } from './components/Overlay/context';
+import Light from './controls/Lights';
+import Overlay from './controls/Overlay';
+import { OverlayContext } from './controls/Overlay/context';
 import { store } from './store';
 import * as Views from './views'
 

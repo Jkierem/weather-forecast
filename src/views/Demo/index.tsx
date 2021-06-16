@@ -1,6 +1,6 @@
 import { useHistory } from "react-router"
-import { OverlayAction } from "../../components/Overlay"
-import { useOverlay } from "../../components/Overlay/hooks"
+import { OverlayAction } from "../../controls/Overlay"
+import { useOverlay } from "../../controls/Overlay/hooks"
 import useWeather from "../../hooks/useWeather"
 import Island from "../../scenes/Island"
 

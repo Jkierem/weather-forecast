@@ -5,7 +5,6 @@ import React, { useMemo, useRef } from "react"
 import { getRandom, getRandomInt, iterateVerts, mapVerts, range} from '../core/utils'
 import { animated, config, useSpring } from '@react-spring/three'
 import Rain, { RainConfig } from './Rain'
-import { EnumType } from 'jazzi'
 import { fromBounds, fromGeometry, lower } from '../core/BoundingBox'
 import { MeshProps } from '@react-three/fiber'
 import { useState } from 'react'
@@ -112,8 +111,6 @@ const MovingCloud: React.FC<MovingCloudProps> = ({ y , duration, direction, z, d
     const rainSeverity = usePathSelector("weather.rain",RainConfig.Light)
     return <RandomCloud position-x={x} position-y={y} position-z={z} rainSeverity={rainSeverity}/>
 }
-
-export const CloudConfig = EnumType("CloudConfig",["Light","Medium","Heavy"])
 
 export const LoadingClouds = () => {
     return <>

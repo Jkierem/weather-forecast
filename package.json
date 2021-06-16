@@ -16,7 +16,6 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/three": "^0.129.1",
     "getclassname": "^1.0.9",
-    "jazzi": "^1.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",

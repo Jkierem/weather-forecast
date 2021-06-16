@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import { OverlayAction } from "../../components/Overlay";
-import { useSyncedOverlay } from "../../components/Overlay/hooks";
+import { OverlayAction } from "../../controls/Overlay";
+import { useSyncedOverlay } from "../../controls/Overlay/hooks";
 import { mapWeather } from "../../core/Weather";
 import usePromise from "../../hooks/usePromise";
 import useWeather from "../../hooks/useWeather";
