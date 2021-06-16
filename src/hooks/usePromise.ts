@@ -1,12 +1,16 @@
-import { useEffect } from "react"
-import useAsyncState, { AsyncState } from "./useAsyncState"
+import { useEffect, useState } from "react"
 
 export type Config<T> = {
     data?: T
-    lazy?: boolean;
 }
 
-export type PromiseHook<T,U> = AsyncState<T,Error> & {
+type State<T> = {
+  loading: boolean;
+  error?: any; 
+  data?: T;
+}
+
+export type PromiseHook<T,U> = State<T> & {
     refetch: (newData?: U) => void
 }
 
@@ -15,20 +19,18 @@ export type PromiseHook<T,U> = AsyncState<T,Error> & {
  * hooked to react using hooks. Can receive a data argument as part of config
  */
 const usePromise = <Data,Args>(fn: (data?: Args) => Promise<Data>, config: Config<Args> = {}): PromiseHook<Data,Args> => {
-  const { events, state } = useAsyncState<Data,Error>(config)
-  const { data, lazy } = config
+  const [ state, setState ] = useState<State<Data>>({ loading: false, data: undefined, error: undefined });
+  const { data } = config
   useEffect(() => {
-    if( !lazy ){
-      fn(data).then(events.onSuccess).catch(events.onError)
-    }
-    // eslint-disable-next-line
-  }, [])
+    fn(data)
+    .then((data) => setState({ loading: false , data , error: undefined }))
+    .catch((error) => setState({ loading: false, data: undefined, error }))
+  }, [fn,data,setState])
 
   const refetch = (newData?: Args): void => {
-    events.start()
-    fn(newData ?? data)
-      .then(events.onSuccess)
-      .catch(events.onError)
+    fn(newData || data)
+    .then((data) => setState({ loading: false , data , error: undefined }))
+    .catch((error) => setState({ loading: false, data: undefined, error }))
   }
 
   return { ...state, refetch }

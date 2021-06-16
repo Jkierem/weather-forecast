@@ -1,5 +1,7 @@
 import getClassName from "getclassname"
 import React from "react"
+import { mapWeather } from "../../core/Weather"
+import { DayData } from "../../middleware"
 import "./style.css"
 
 type Styling = {
@@ -7,7 +9,8 @@ type Styling = {
     stroke?: string,
 }
 
-type OverlayAction = {
+export type OverlayGenericAction = {
+    type: "generic",
     action: string,
     label: string,
     idle?: Styling,
@@ -15,11 +18,24 @@ type OverlayAction = {
     transition?: string,
 }
 
+export type OverlayWeatherAction = {
+    type: "weather",
+    action: "weather",
+    data: DayData,
+}
+
+export type OverlayAction = OverlayGenericAction | OverlayWeatherAction
+
+export type OverlayGenericActionProp = Omit<OverlayGenericAction,"type">
+
 export type OverlayProps = {
     blur?: boolean;
-    actions?: OverlayAction[],
-    sideActions?: OverlayAction[],
-    onAction?: (action: string, actionData?: OverlayAction) => void,
+    actions?: OverlayGenericActionProp[],
+    sideActions?: OverlayGenericActionProp[],
+    weatherData?: { day: number, amount: number }[],
+    selectedDay?: number,
+    onAction?: (actionData: OverlayAction) => void,
+    onGoBack?: () => void,
 }
 
 const purge = <T,>(obj: { [p: string]: T | undefined }) => {
@@ -33,31 +49,44 @@ const cssVars = (pre: string, obj: Styling) => {
     }
 }
 
-const defaultProps = {
-    blur: true,
-    actions: [] as OverlayAction[],
-    sideActions: [] as OverlayAction[],
-    onAction: () => {},
-    children: undefined
-}
 const Overlay: React.FC<OverlayProps> = ({ 
+    children,
     blur=true, 
     actions=[], 
+    sideActions=[],
+    weatherData=[],
+    selectedDay=0,
     onAction=()=>{}, 
-    children,
-    sideActions=[], 
-}=defaultProps) => {
+    onGoBack=()=>{},
+}={}) => {
     const rootCl = getClassName({ 
         base: "overlay",
         "&--transparent": !blur, 
     });
     const actionsCl = rootCl.extend("&__actions");
     const actionItemCl = actionsCl.extend("&__item");
-    const sideCl = rootCl.extend("&__sidebar")
+    const sideCl = rootCl.extend("&__sidebar");
+
+    const daysCl = getClassName({ base: "day-cards" })
+    const dayCardCl = daysCl.extend("&__card");
+    const dayCardRainCl = dayCardCl.extend("&__rain")
+    const dayCardDayCl = dayCardCl.extend("&__day")
 
     const handleAction = (action: OverlayAction) => (e: React.MouseEvent) => {
-        onAction?.(action.action,action)
+        onAction?.(action)
     }
+
+    const handleWeatherAction = (data: DayData) => (e: React.MouseEvent) => {
+        onAction?.({ data, action: "weather", type: "weather" });
+    } 
+
+    const selIndex = weatherData?.findIndex(({ day }) => day === selectedDay)
+    const computeDayCardClass = (idx: number, placeholder: boolean=false) => dayCardCl.recompute({
+        "&--selected": idx === selIndex,
+        "&--prev": idx === selIndex - 1,
+        "&--next": idx === selIndex + 1,
+        "&--placeholder": placeholder
+    }) 
 
     return <>
         {actions.length > 0 && <div className={actionsCl}>
@@ -72,7 +101,7 @@ const Overlay: React.FC<OverlayProps> = ({
                     className={actionItemCl} 
                     style={style} 
                     key={index} 
-                    onClick={handleAction(actionData)}
+                    onClick={handleAction({ type: "generic", ...actionData})}
                 >{label}</button>
             })}
         </div>}
@@ -88,9 +117,37 @@ const Overlay: React.FC<OverlayProps> = ({
                     className={actionItemCl} 
                     style={style} 
                     key={index} 
-                    onClick={handleAction(actionData)}
+                    onClick={handleAction({ type: "generic" ,...actionData})}
                 >{label}</button>
             })}
+        </div>}
+        {weatherData.length > 0 && <div className={daysCl}>
+            <div className={computeDayCardClass(-1,true)}></div>
+            {weatherData.map(({ day, amount },key) => {
+                const cl = computeDayCardClass(key)
+                const icon = mapWeather(amount, {
+                    Light: "png/light.png",
+                    Medium: "png/medium.png",
+                    Heavy: "png/heavy.png"
+                })
+                const alt = mapWeather(amount, {
+                    Light: "light rain",
+                    Medium: "medium rain",
+                    Heavy: "heavy rain"
+                }) 
+                return <div 
+                    key={key} 
+                    className={cl} 
+                    onClick={handleWeatherAction({ day, amount })}
+                >
+                    <div className={dayCardRainCl}>Rain: {amount}</div>
+                    <div className={dayCardDayCl}>{day}</div>
+                    <figure>
+                        <img alt={alt} width="45px" src={icon}/>
+                    </figure>
+                </div>
+            })}
+            <div className={computeDayCardClass(weatherData.length,true)}></div>
         </div>}
         <div className={rootCl}>
             {children}

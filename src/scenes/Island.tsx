@@ -89,7 +89,7 @@ const Island = () => {
             delay={4000}
             position={[-8,3,8]}
             rotation={[0,-m.degToRad(45),0]}
-            showUmbrella={rain === RainConfig.Medium}
+            showUmbrella={rain >= RainConfig.Medium}
         />
         <GradientSlab
             topColor={Green} 

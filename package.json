@@ -23,9 +23,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "redux": "^4.1.0",
-    "redux-observable": "^1.2.0",
     "redux-utility": "^2.2.4",
-    "rxjs": "^7.1.0",
     "three": "^0.129.0",
     "typescript": "^4.1.2"
   },

@@ -1,10 +1,10 @@
 import { useHistory } from "react-router"
+import { OverlayAction } from "../../components/Overlay"
 import { useOverlay } from "../../components/Overlay/hooks"
 import useWeather from "../../hooks/useWeather"
 import Island from "../../scenes/Island"
 
 const options = [
-    { action: "None", label: "None"    , hover: { fill: "darkred"}},
     { action: "Low" , label: "Low"     , hover: { fill: "darkred"}},
     { action: "Med" , label: "Med"     , hover: { fill: "darkred"}},
     { action: "High", label: "High"    , hover: { fill: "darkred"}},
@@ -15,8 +15,8 @@ const Demo = () => {
     const history = useHistory()
     const weather = useWeather()
 
-    const handleAction = (action: string) => {
-        switch(action){
+    const handleAction = (action: OverlayAction) => {
+        switch(action.action){
             case "Back":
                 history.goBack()
                 break;

@@ -17,7 +17,7 @@ const Light: React.FC<{}> = ({ children }) => {
     })
 
     return <>
-        <Sky azimuth={degToRad(180)} inclination={degToRad(45)} distance={1000} rayleigh={rayleigh}/>
+        <Sky azimuth={degToRad(90)} inclination={degToRad(45)} distance={1000} rayleigh={rayleigh}/>
         <ambientLight intensity={0.2} />
         <directionalLight color="white" position={[1, 5, 1]} intensity={0.8} />
         {children}

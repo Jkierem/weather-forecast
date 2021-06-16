@@ -2,12 +2,13 @@ import { useMemo, useState, useRef } from 'react'
 import { useSpring, animated } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
-import { BoundingBox, upper } from '../core/BoundingBox'
+import { BoundingBox, lower, upper } from '../core/BoundingBox'
 import { getRandom, isBetween } from '../core/utils'
 import { Tuple3 } from '../core/utils/types'
 import useTimeout from '../hooks/useTimeout'
 
 export enum RainConfig {
+    None=-1,
     Light=0,
     Medium=1,
     Heavy=2
@@ -15,24 +16,26 @@ export enum RainConfig {
 
 const getConfig = (config: RainConfig) => {
     switch(config){
+        case RainConfig.None:
+            return { count: 0, speed: 0 } 
         case RainConfig.Light:
             return { count: 50, speed: 0.1 }
         case RainConfig.Medium:
-            return { count: 300, speed: 0.1 }    
+            return { count: 200, speed: 0.1 }    
         case RainConfig.Heavy:
             return { count: 1000, speed: 0.1 }
     }
 }
 
 type RainDrop = {
-    mark: RainConfig | "death",
+    mark: RainConfig | "removal",
     pos: Tuple3<number>;
 }
 
 const getMark = (idx: number) => {
     if( idx < 50 ){
         return RainConfig.Light
-    } else if(isBetween(50,300,idx)) {
+    } else if(isBetween(50,200,idx)) {
         return RainConfig.Medium
     } else {
         return RainConfig.Heavy
@@ -115,9 +118,9 @@ const Rain: React.FC<RainProps> = ({
                 dropsRef.current = drops.map((rainDrop) => {
                     const { pos, mark } = rainDrop
                     const [x,y,z] = pos;
-                    if( y - speed < vis.y[0] ){
+                    if( y - speed < lower(vis.y) ){
                         if( state === "dec" && mark === highestMark ){
-                            return { mark: "death" as "death", pos };
+                            return { mark: "removal" as "removal", pos };
                         } else {
                             return {
                                 mark,
@@ -126,7 +129,7 @@ const Rain: React.FC<RainProps> = ({
                         }
                     }
                     return { mark, pos: [x,y-speed,z] as Tuple3<number> };
-                }).filter(drop => drop.mark !== "death");
+                }).filter(drop => drop.mark !== "removal");
             }
         } else {
             dropsRef.current = []
