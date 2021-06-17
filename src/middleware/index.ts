@@ -11,7 +11,7 @@ export type WeatherData = {
 export type WeatherResponse = [WeatherData]
 
 export const getWeatherData = (): Promise<WeatherData> => {
-    return fetch('http://private-4945e-weather34.apiary-proxy.com/weather34/rain')
+    return fetch('https://private-4945e-weather34.apiary-proxy.com/weather34/rain')
         .then((res: Response) => res.json() as Promise<WeatherResponse>)
         .then((raw: WeatherResponse) => raw[0] );
 }
