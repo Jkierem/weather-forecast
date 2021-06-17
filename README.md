@@ -2,6 +2,10 @@
 
 Simple weather app with three js and react (using react-three-fiber)
 
+## Watch It Live!
+
+You can see this page at https://weatherly-cc47d.web.app (hosted with firebase)
+
 ## Instalation
 
 1. Clone the repo
