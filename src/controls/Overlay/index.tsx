@@ -12,7 +12,7 @@ type Styling = {
 export type OverlayGenericAction = {
     type: "generic",
     action: string,
-    label: string,
+    label?: string | React.ReactNode,
     idle?: Styling,
     hover?: Styling,
     transition?: string,
@@ -46,6 +46,21 @@ const cssVars = (pre: string, obj: Styling) => {
     return {
         [`--${pre}-fill`]: obj.fill,
         [`--${pre}-stroke`]: obj.stroke
+    }
+}
+
+const clamp = (lower: number, upper: number) => (val: number): number => {
+    return val < lower ? lower :
+            val > upper ? upper :
+             val
+}
+
+const getDropLevel = (amount: number) => {
+    const m = Number(-(4/15).toFixed(3));
+    const level = clamp(-10,30)((amount * m) + 30);
+
+    return {
+        transform: `rotateZ(45deg) translateX(${level}px)`
     }
 }
 
@@ -121,7 +136,7 @@ const Overlay: React.FC<OverlayProps> = ({
                 >{label}</button>
             })}
         </div>}
-        {weatherData.length > 0 && <div className={daysCl}>
+        {weatherData.length > 0 && <><div className={daysCl}>
             <div className={computeDayCardClass(-1,true)}></div>
             {weatherData.map(({ day, amount },key) => {
                 const cl = computeDayCardClass(key)
@@ -140,7 +155,13 @@ const Overlay: React.FC<OverlayProps> = ({
                     className={cl} 
                     onClick={handleWeatherAction({ day, amount })}
                 >
-                    <div className={dayCardRainCl}>Rain: {amount}</div>
+                    <div className={dayCardRainCl}>
+                        <div className={dayCardRainCl.extend("&__text")}>{amount}</div>
+                        <div 
+                            className={dayCardRainCl.extend("&__water")}
+                            style={getDropLevel(amount)}
+                        ></div>
+                    </div>
                     <div className={dayCardDayCl}>{day}</div>
                     <figure>
                         <img alt={alt} width="45px" src={icon}/>
@@ -148,7 +169,13 @@ const Overlay: React.FC<OverlayProps> = ({
                 </div>
             })}
             <div className={computeDayCardClass(weatherData.length,true)}></div>
-        </div>}
+        </div>
+        <div className="home">
+            <button className="home__button" onClick={handleAction({ type: "generic", action: "Home" })}>
+                <img alt="go home" src="png/home.png"/>
+            </button>
+        </div>
+        </>}
         <div className={rootCl}>
             {children}
         </div>

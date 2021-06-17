@@ -37,9 +37,7 @@ const Demo = () => {
         onAction: handleAction
     })
     
-    return <>
-        <Island />
-    </>
+    return <Island />
 }
 
 export default Demo

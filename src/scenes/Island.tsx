@@ -76,8 +76,12 @@ const Island = () => {
     ],[0,0.2,0.4,1]);
 
     const [popDelay, setPopDelay] = useState(2000)
+    const [rainDelay, setRainDelay] = useState(1000)
     useTimeout({
-        action: () => setPopDelay(0),
+        action: () => {
+            setPopDelay(0)
+            setRainDelay(0)
+        },
         duration: 2000
     })
 
@@ -113,36 +117,43 @@ const Island = () => {
             visible={true}
             initialPosition={[5,10,5]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={true}
             initialPosition={[-5,10,-5]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={true}
             initialPosition={[-5,10,4]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={rain >= RainConfig.Medium}
             initialPosition={[5,10,-3]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={rain >= RainConfig.Medium}
             initialPosition={[-5,10,0]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={rain === RainConfig.Heavy}
             initialPosition={[0,10,-3]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         <PoppingCloud 
             visible={rain === RainConfig.Heavy}
             initialPosition={[3,10,3]}
             popDelay={popDelay}
+            rainDelay={rainDelay}
         />
         {boxes.map((box,key) => {
             return <Trees

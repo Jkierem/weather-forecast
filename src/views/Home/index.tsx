@@ -17,13 +17,21 @@ const options = [
         label: "Demo Mode", 
         idle: { fill: "Olive"},
         hover: { fill: "DarkOliveGreen" }  
+    },
+    {
+        action: "github",
+        label: <img height="40px" alt="check out the code" src="png/github.png"/>
     }
 ]
 
 const Home = () => {
     const history = useHistory()
     const handleSelect = (action: OverlayAction) => {
-        history.push(action.action)
+        if( action.action === "github" ){
+            window.location.href = "https://github.com/Jkierem/weather-forecast"
+        } else {
+            history.push(action.action)
+        } 
     }
     useSetWeather("Loading")
     useOverlay({ actions: options, onAction: handleSelect })

@@ -23,7 +23,7 @@ const getConfig = (config: RainConfig) => {
         case RainConfig.Medium:
             return { count: 200, speed: 0.1 }    
         case RainConfig.Heavy:
-            return { count: 1000, speed: 0.1 }
+            return { count: 600, speed: 0.1 }
     }
 }
 

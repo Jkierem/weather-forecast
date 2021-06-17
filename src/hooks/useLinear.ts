@@ -13,6 +13,12 @@ const defaultConfig = {
     steps: 40
 }
 
+/**
+ * Hook for manual linear interpolation
+ * @param initial initial value
+ * @param trigger value that triggers a change 
+ * @param config
+ */
 const useLinear = (initial: number, trigger: number, config: GradientConfig=defaultConfig) => {
     const { 
         precision=2,

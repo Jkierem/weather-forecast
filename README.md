@@ -18,6 +18,7 @@ The project has a couple of notable dependencies:
 
 - redux: for state management
 - react-three/drei: for a built in sky
+- react-spring: for animations
 - react-router: for client side routing
 - getclassname: minimal classname handler (made by me)
 - redux-utility: to reduce redux boilerplate (made by me) 

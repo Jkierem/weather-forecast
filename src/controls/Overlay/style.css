@@ -114,3 +114,52 @@
 .day-cards__card__day {
     margin-bottom: 16px;
 }
+
+.day-cards__card__rain {
+    position: relative;
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: rotateZ(45deg);
+    width: 32px;
+    height: 32px;
+    border-radius: 5% 100% 100% 100%;
+    overflow: hidden;
+}
+
+.day-cards__card__rain__text {
+    transform: rotateZ(-45deg);
+    z-index: 3;
+}
+
+.day-cards__card__rain__water {
+    position: absolute;
+    background-color: darkcyan;
+    transform: rotateZ(45deg) translateX(-10px);
+    width: 42px;
+    height: 42px;
+    top: 0px;
+    left: 0px;
+}
+
+.home {
+    position: absolute;
+    bottom: 36px;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+}
+
+.home__button {
+    background-color: rgba(255,255,255,0.5);
+    border: 2px solid black;
+    margin: 0 auto;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

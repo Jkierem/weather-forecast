@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { OverlayAction } from "../../controls/Overlay";
 import { useSyncedOverlay } from "../../controls/Overlay/hooks";
 import { mapWeather } from "../../core/Weather";
@@ -28,11 +29,14 @@ const Live = () => {
         weather.setHeavy,
     ])
 
+    const history = useHistory()
     const handleAction = (action: OverlayAction) => {
         if( action.type === "weather" ){
             const { data } = action;
             setSelected(data.day)
             setWeather(data.amount)
+        } else {
+            history.push("/home")
         }
     }
 

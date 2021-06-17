@@ -8,6 +8,10 @@ type TimeoutConfig = {
     onFalse?: () => void 
 }
 
+
+/**
+ * Shorthand for timeout effects
+ */
 const useTimeout = ({
     action, 
     duration, 

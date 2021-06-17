@@ -4,10 +4,12 @@ import { setHeavy, setLight, setLoading, setMedium, Weathers } from "../redux/we
 
 type WeatherNames = typeof Weathers[number]
 type WeatherSetters = `set${WeatherNames}`; 
-type WeatherAPI = { 
-    [P in WeatherSetters]: () => void;
-}
+type WeatherAPI = { [P in WeatherSetters]: () => void; }
 
+/**
+ * Used to gain access to the Weather API and control the weather
+ * @returns WeatherAPI
+ */
 const useWeather = () => {
     const dispatch = useDispatch()
     return {
@@ -18,6 +20,10 @@ const useWeather = () => {
     } as WeatherAPI
 }
 
+/**
+ * Shorthand for setting an specific weather setting on mount
+ * @param weather 
+ */
 export const useSetWeather = (weather: WeatherNames) => {
     const weatherCtrl = useWeather()
     useEffect(() => {
