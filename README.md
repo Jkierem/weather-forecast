@@ -1,10 +1,10 @@
-# Weatherly
+# Weather
 
-Simple weather app with three js and react (using react-three-fiber)
+Simple weather app with jazzi, three-js and react (using react-three-fiber)
 
 ## Watch It Live!
 
-You can see this page at https://weatherly-cc47d.web.app (hosted with firebase)
+You can see this page at https://weather.jkierem.com (hosted with firebase)
 
 ## Instalation
 
@@ -22,6 +22,7 @@ The project has a couple of notable dependencies:
 - react-router: for client side routing
 - getclassname: minimal classname handler (made by me)
 - redux-utility: to reduce redux boilerplate (made by me) 
+- jazzi: to use algebraic structures (made by me) 
 - Built using create-react-app with typescript
 
 ## Project Structure
@@ -35,4 +36,3 @@ The project was organized in the following folders:
 - redux: this folder would contain all the different slices of redux state. Currently only one slice: weather
 - scenes: this folder contains reusable react-three-fiber meshes. 
 - views: They represent the routes the app has.
-
