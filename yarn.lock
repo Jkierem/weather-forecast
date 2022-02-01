@@ -6401,6 +6401,11 @@ istanbul-reports@^3.0.2:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
+jazzi@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/jazzi/-/jazzi-2.2.4.tgz#7868bb3335a714d759cd48b21dfa7e463ee23370"
+  integrity sha512-ZzJbOwnMtt8rc0oI/VTquoWm3IMxstDZ12FR/cT3BxBv9zlJurSeSiRmubLE037kaLaVFtpQgUg3E8lJaRiTkQ==
+
 jest-changed-files@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-changed-files/-/jest-changed-files-26.6.2.tgz#f6198479e1cc66f22f9ae1e22acaa0b429c042d0"
